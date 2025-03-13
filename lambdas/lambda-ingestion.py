@@ -5,11 +5,9 @@ import os
 import requests
 import boto3
 
-
 def handler(event, context):
-    """
-    """
-    url = os.environ['NYC-TLC']
+
+    url = os.environ['NYC_TLC_URL']
     bucket = os.environ['BUCKET_NAME']
     prefix = os.environ['BUCKET_PREFIX']
 
@@ -37,13 +35,19 @@ def handler(event, context):
         s3_client = boto3.client('s3')
 
         for link in yellow_tripdata_links:
-            link_response = requests.get(link, headers=headers)
+            link_response = requests.get(link, headers=headers, stream=True)
             link_response.raise_for_status()
 
             parquet_name = link.split('/')[-1]
             s3_key = prefix + parquet_name
 
             with BytesIO(link_response.content) as file_buffer:
+
+                for chunk in link_response.iter_content(chunk_size=8192):
+                    file_buffer.write(chunk)
+
+                file_buffer.seek(0)  # Reset buffer position to start
+
                 s3_client.upload_fileobj(file_buffer, bucket, s3_key)
 
     except Exception as error:
