@@ -78,3 +78,55 @@ Resources:
       Tags:
         - Key: Projeto
           Value: Projeto Integrador
+
+  IAMRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - glue.amazonaws.com
+                - states.amazonaws.com
+                - events.amazonaws.com
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Policies:
+        - PolicyName: !Sub "${AWS::StackName}-Role"
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action: "*"
+                Resource: "*"
+      Tags:
+        - Key: Projeto
+          Value: Projeto Integrador
+
+  FunctionIngestion:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      FunctionName: !Sub "${AWS::StackName}-ingestion-function"
+      Handler: 'lambda-producer.lambda_handler'
+      Runtime: 'python3.9'
+      Role: !GetAtt IAMRole.Arn
+      CodeUri:
+        Bucket: !Ref BucketArtifacts
+        Key: 'lambda-scripts/lambda-ingestion.zip'
+      Timeout: 900
+      Events:
+        S3Trigger:
+          Type: S3
+          Properties:
+            Bucket: !Ref BucketIngestion
+            Events: 's3:ObjectCreated:*'
+            Filter:
+              S3Key:
+                Rules:
+                  - Name: prefix
+                    Value: 'data/'
+      Tags:
+        "Projeto": "Projeto Integrador"
