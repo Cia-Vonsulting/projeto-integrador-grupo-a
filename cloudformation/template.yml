@@ -86,7 +86,7 @@ Resources:
       Handler: 'lambda-ingestion.handler'
       Architectures:
         - 'arm64'
-      MemorySize: 512
+      MemorySize: 2048
       Timeout: 900
       Runtime: 'python3.12'
       Layers:

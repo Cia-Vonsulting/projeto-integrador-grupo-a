@@ -66,12 +66,15 @@ def handler(event, context):
         parquet_urls = get_parquet_urls(trip_type, year, month)
         print('parquet URLs: ', parquet_urls)
 
+        if len(parquet_urls) == 0:
+            return "There's no data to ingest"
+
         print('Downloading parquet files and saving them on raw layer')
         scrap_and_save_parquets(parquet_urls, trip_type)
 
         print('End Lambda Ingestion')
 
-        return 'success'
+        return 'Data ingested successfully'
 
     except Exception as error:
         print("Error: ", error)
