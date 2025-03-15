@@ -76,35 +76,8 @@ Resources:
           Value: Projeto Integrador
 
 ############################################################################################################
-########################################    Event Bridge   #################################################
-############################################################################################################
-
-# TODO: Create Amazon Event Bridge schedule event to trigger extraction Lambda every month
-
-############################################################################################################
 ########################################      LAMBDAS      #################################################
 ############################################################################################################
-
-  FunctionExtraction:
-    Type: AWS::Serverless::Function
-    Properties:
-      FunctionName: !Sub '${AWS::StackName}-extraction-function'
-      Architectures:
-        - 'arm64'
-      MemorySize: 128
-      Timeout: 30
-      Handler: 'lambda-extraction.handler'
-      Runtime: 'python3.12'
-      Role: !GetAtt IAMRole.Arn
-      CodeUri: '../lambdas'
-      Environment:
-        Variables:
-          NYC_TLC_URL: !Ref DataUrl
-          BUCKET_NAME: !Ref BucketRaw
-          BUCKET_PREFIX: 'tlc-trip/yellow/'
-          QUEUE_URL: !Ref IngestionQueue
-      Tags:
-        "Projeto": 'Projeto Integrador'
 
   FunctionIngestion:
     Type: AWS::Serverless::Function
@@ -120,17 +93,11 @@ Resources:
         - !Ref WebScrappingLayer
       Role: !GetAtt IAMRole.Arn
       CodeUri: '../lambdas'
-      Events:
-        SQSEvent:
-          Type: SQS
-          Properties:
-            Queue: !GetAtt IngestionQueue.Arn
-            BatchSize: 10
-            Enabled: true
       Environment:
         Variables:
+          NYC_TLC_URL: !Ref DataUrl
           BUCKET_NAME: !Ref BucketRaw
-          BUCKET_PREFIX: 'tlc-trip/yellow/'
+          BUCKET_PREFIX: 'tlc_trip'
       Tags:
         "Projeto": 'Projeto Integrador'
 
@@ -148,14 +115,3 @@ Resources:
         - 'arm64'
       CompatibleRuntimes:
         - 'python3.12'
-
-############################################################################################################
-########################################       SQS         #################################################
-############################################################################################################
-
-  IngestionQueue: 
-    Type: AWS::SQS::Queue
-    Properties: 
-      QueueName: !Sub '${AWS::StackName}-ingestion-queue'
-      VisibilityTimeout: 900
-      DelaySeconds: 120
