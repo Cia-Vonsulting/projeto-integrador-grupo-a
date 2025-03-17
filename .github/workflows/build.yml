@@ -28,7 +28,7 @@ jobs:
       # Runs a set of commands using the runners shell
       - name: Run a multi-line script
         run: |
-          cd ./layers/web-scrapping-layer
+          # cd ./layers/web-scrapping-layer
           pip help
           # TEMP_DIR=`mktemp -d`
           # mkdir $TEMP_DIR/python 
