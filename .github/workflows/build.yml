@@ -29,8 +29,9 @@ jobs:
       - name: Run a multi-line script
         run: |
           cd ./layers/web-scrapping-layer
-          TEMP_DIR=`mktemp -d`
-          mkdir $TEMP_DIR/python 
-          pip install -t requirements.txt -t $TEMP_DIR/python
-          zip web-scrapping-layer.zip $TEMP_DIR/python
-          ls
+          pip help
+          # TEMP_DIR=`mktemp -d`
+          # mkdir $TEMP_DIR/python 
+          # pip install -t requirements.txt -t $TEMP_DIR/python
+          # zip web-scrapping-layer.zip $TEMP_DIR/python
+          # ls
