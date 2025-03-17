@@ -31,6 +31,6 @@ jobs:
           cd ./layers/web-scrapping-layer
           TEMP_DIR=`mktemp -d`
           mkdir $TEMP_DIR/python 
-          python3 -m pip install -t requirements.txt -t $TEMP_DIR/python
+          python3 -m pip install -r requirements.txt -t $TEMP_DIR/python
           zip web-scrapping-layer.zip $TEMP_DIR/python
           ls
