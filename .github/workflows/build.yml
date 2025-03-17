@@ -26,11 +26,11 @@ jobs:
       - uses: actions/checkout@v4
 
       # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
+      - name: Create layer zips
         run: |
           cd ./layers/web-scrapping-layer
           TEMP_DIR=`mktemp -d`
           mkdir $TEMP_DIR/python 
-          python3 -m pip install -r requirements.txt -t $TEMP_DIR/python
+          pip install -r requirements.txt -t $TEMP_DIR/python
           zip web-scrapping-layer.zip $TEMP_DIR/python
           ls
