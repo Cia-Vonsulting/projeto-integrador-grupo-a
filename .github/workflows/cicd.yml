@@ -30,11 +30,9 @@ jobs:
         aws-region: ${{ vars.AWS_REGION }}
     - name: Build package of the project
       run: aws cloudformation package --template-file cloudformation.yml --s3-bucket ${{ vars.AWS_BUCKET_ARTIFACT }} --s3-prefix builds --output-template-file cfstack_package.yml
-    - name: checking stack name
-      run: echo "cfstack-${{ github.event.repository.name }}"
-    # - name: Deploy to AWS CloudFormation
-    #   uses: aws-actions/aws-cloudformation-github-deploy@v1
-    #   with:
-    #     name: "cfstack-${REPO_NAME}"
-    #     template: cfstack_package.yml
-    #     capabilities: CAPABILITY_IAM,CAPABILITY_AUTO_EXPAND
+    - name: Deploy to AWS CloudFormation
+      uses: aws-actions/aws-cloudformation-github-deploy@v1
+      with:
+        name: "cfstack-${{ github.event.repository.name }}"
+        template: cfstack_package.yml
+        capabilities: CAPABILITY_IAM,CAPABILITY_AUTO_EXPAND
