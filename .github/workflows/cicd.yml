@@ -35,7 +35,7 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ vars.AWS_REGION }}
     - name: Build package of the project
-      run: aws cloudformation package --template-file cloudformation.yml --s3-bucket ${{ AWS_BUCKET_ARTIFACT }} --s3-prefix builds --output-template-file cfstack_package.yml
+      run: aws cloudformation package --template-file cloudformation.yml --s3-bucket ${{ vars.AWS_BUCKET_ARTIFACT }} --s3-prefix builds --output-template-file cfstack_package.yml
 
   deploy:
     needs: build
