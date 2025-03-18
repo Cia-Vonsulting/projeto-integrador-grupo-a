@@ -18,13 +18,9 @@ jobs:
     - name: Create layer zips
       run: |
         cd ./layers/web-scrapping-layer
-        echo "Current directory: $(pwd)"
-        ls -la
         mkdir -p python
         pip install -r requirements.txt -t python
-        ls -la python/
         zip -r web-scrapping-layer.zip python
-        unzip -l web-scrapping-layer.zip
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
