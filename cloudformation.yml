@@ -115,9 +115,6 @@ Resources:
       DatabaseInput:
         Name: tlc_trip
         Description: "Database para armazenar tabelas da camada Raw do TLC Trip"
-        Tags:
-          - Key: Projeto
-            Value: Projeto Integrador
 
   GlueTable:
     Type: AWS::Glue::Table
@@ -174,6 +171,3 @@ Resources:
           OutputFormat: org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat
           SerdeInfo:
             SerializationLibrary: org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe
-        Tags:
-          - Key: Projeto
-            Value: Projeto Integrador
