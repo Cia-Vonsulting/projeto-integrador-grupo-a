@@ -118,6 +118,7 @@ Resources:
 
   GlueTable:
     Type: AWS::Glue::Table
+    DependsOn: GlueDatabase
     Properties:
       CatalogId: !Ref AWS::AccountId
       DatabaseName: tlc_trip
