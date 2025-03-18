@@ -52,3 +52,4 @@ jobs:
       with:
         name: cfstack-eEDB-015-2025-1-grupo-a
         template: cloudformation.yml
+        capabilities: CAPABILITY_IAM,CAPABILITY_AUTO_EXPAND
