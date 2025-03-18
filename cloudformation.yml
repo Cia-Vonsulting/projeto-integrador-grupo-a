@@ -92,7 +92,7 @@ Resources:
       Layers:
         - !Ref WebScrappingLayer
       Role: !GetAtt IAMRole.Arn
-      CodeUri: '../lambdas'
+      CodeUri: './lambdas'
       Environment:
         Variables:
           NYC_TLC_URL: !Ref DataUrl
@@ -110,7 +110,7 @@ Resources:
     Properties:
       LayerName: !Sub '${AWS::StackName}-web-scrapping-layer'
       Description: 'A layer which contains web scrapping libraries'
-      ContentUri: '../layers/web-scrapping-layer/web-scrapping-layer.zip'
+      ContentUri: './layers/web-scrapping-layer/web-scrapping-layer.zip'
       CompatibleArchitectures:
         - 'arm64'
       CompatibleRuntimes:
