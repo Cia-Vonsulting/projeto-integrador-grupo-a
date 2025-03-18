@@ -33,6 +33,7 @@ jobs:
     - name: Deploy to AWS CloudFormation
       uses: aws-actions/aws-cloudformation-github-deploy@v1
       with:
-        name: "cfstack-${{ github.event.repository.name }}"
+        name: "cfstack-${{ github.event.repository.name }}-grupo-a"
         template: cfstack_package.yml
+        parameter-overrides: "file:///${{ github.workspace }}/parameters.json"
         capabilities: CAPABILITY_IAM,CAPABILITY_AUTO_EXPAND

@@ -4,20 +4,7 @@ Description: 'Stack eedb015-2024-g2 com os recursos do grupo 2 da Especializacao
 
 Parameters:
 
-  Course:
-    Default: eedb
-    Type: String
-
-  Subject:
-    Default: 015-2024
-    Type: String
-
-  Group:
-    Default: grupo-a
-    Type: String
-
   DataUrl:
-    Default: https://www.nyc.gov/site/tlc/about/tlc-trip-record-data.page
     Type: String
 
 Resources:
@@ -29,7 +16,7 @@ Resources:
   BucketRaw:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Sub ${Course}${Subject}-${Group}-${AWS::AccountId}-raw
+      BucketName: !Sub "${AWS::StackName}-raw"
       AccessControl: Private
       BucketEncryption:
         ServerSideEncryptionConfiguration:
