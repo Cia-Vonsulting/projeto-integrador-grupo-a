@@ -31,6 +31,24 @@ Resources:
         - Key: Projeto
           Value: Projeto Integrador
 
+  BucketTrusted:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub "${AWS::StackName}-trusted"
+      AccessControl: Private
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      Tags:
+        - Key: Projeto
+          Value: Projeto Integrador
+
 ############################################################################################################
 ########################################       ROLES       #################################################
 ############################################################################################################
