@@ -13,8 +13,6 @@ jobs:
 
   deploy:
     runs-on: ubuntu-latest
-    env:
-      REPO_NAME: ${GITHUB_REPOSITORY#$GITHUB_REPOSITORY_OWNER/}
     steps:
     - uses: actions/checkout@v4
     - name: Create layer zips
@@ -33,7 +31,7 @@ jobs:
     - name: Build package of the project
       run: aws cloudformation package --template-file cloudformation.yml --s3-bucket ${{ vars.AWS_BUCKET_ARTIFACT }} --s3-prefix builds --output-template-file cfstack_package.yml
     - name: checking stack name
-      run: echo "cfstack-${REPO_NAME}"
+      run: echo "cfstack-${{ github.event.repository.name }}"
     # - name: Deploy to AWS CloudFormation
     #   uses: aws-actions/aws-cloudformation-github-deploy@v1
     #   with:
