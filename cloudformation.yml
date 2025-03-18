@@ -1,0 +1,117 @@
+AWSTemplateFormatVersion: 2010-09-09
+Transform: AWS::Serverless-2016-10-31
+Description: 'Stack eedb015-2024-g2 com os recursos do grupo 2 da Especializacao Engenharia de Dados e Big Data turma de 2024 para a aula de Projeto Integrador'
+
+Parameters:
+
+  Course:
+    Default: eedb
+    Type: String
+
+  Subject:
+    Default: 015-2024
+    Type: String
+
+  Group:
+    Default: grupo-a
+    Type: String
+
+  DataUrl:
+    Default: https://www.nyc.gov/site/tlc/about/tlc-trip-record-data.page
+    Type: String
+
+Resources:
+
+############################################################################################################
+########################################      BUCKETS      #################################################
+############################################################################################################
+
+  BucketRaw:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub ${Course}${Subject}-${Group}-${AWS::AccountId}-raw
+      AccessControl: Private
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      Tags:
+        - Key: Projeto
+          Value: Projeto Integrador
+
+############################################################################################################
+########################################       ROLES       #################################################
+############################################################################################################
+
+  IAMRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - glue.amazonaws.com
+                - states.amazonaws.com
+                - events.amazonaws.com
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Policies:
+        - PolicyName: !Sub "${AWS::StackName}-Role"
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action: "*"
+                Resource: "*"
+      Tags:
+        - Key: Projeto
+          Value: Projeto Integrador
+
+############################################################################################################
+########################################      LAMBDAS      #################################################
+############################################################################################################
+
+  FunctionIngestion:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub '${AWS::StackName}-ingestion-function'
+      Handler: 'lambda-ingestion.handler'
+      Architectures:
+        - 'arm64'
+      MemorySize: 2048
+      Timeout: 900
+      Runtime: 'python3.12'
+      Layers:
+        - !Ref WebScrappingLayer
+      Role: !GetAtt IAMRole.Arn
+      CodeUri: './lambdas'
+      Environment:
+        Variables:
+          NYC_TLC_URL: !Ref DataUrl
+          BUCKET_NAME: !Ref BucketRaw
+          BUCKET_PREFIX: 'tlc_trip'
+      Tags:
+        "Projeto": 'Projeto Integrador'
+
+############################################################################################################
+########################################      LAYERS       #################################################
+############################################################################################################
+
+  WebScrappingLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: !Sub '${AWS::StackName}-web-scrapping-layer'
+      Description: 'A layer which contains web scrapping libraries'
+      ContentUri: './layers/web-scrapping-layer/web-scrapping-layer.zip'
+      CompatibleArchitectures:
+        - 'arm64'
+      CompatibleRuntimes:
+        - 'python3.12'
