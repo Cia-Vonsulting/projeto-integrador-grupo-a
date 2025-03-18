@@ -31,24 +31,6 @@ Resources:
         - Key: Projeto
           Value: Projeto Integrador
 
-  BucketTrusted:
-    Type: AWS::S3::Bucket
-    Properties:
-      BucketName: !Sub "${AWS::StackName}-trusted"
-      AccessControl: Private
-      BucketEncryption:
-        ServerSideEncryptionConfiguration:
-          - ServerSideEncryptionByDefault:
-              SSEAlgorithm: AES256
-      PublicAccessBlockConfiguration:
-        BlockPublicAcls: true
-        BlockPublicPolicy: true
-        IgnorePublicAcls: true
-        RestrictPublicBuckets: true
-      Tags:
-        - Key: Projeto
-          Value: Projeto Integrador
-
 ############################################################################################################
 ########################################       ROLES       #################################################
 ############################################################################################################
@@ -120,3 +102,78 @@ Resources:
         - 'arm64'
       CompatibleRuntimes:
         - 'python3.12'
+
+
+############################################################################################################
+########################################   Glue Catalog    #################################################
+############################################################################################################
+
+  GlueDatabase:
+    Type: AWS::Glue::Database
+    Properties:
+      CatalogId: !Ref AWS::AccountId
+      DatabaseInput:
+        Name: tlc_trip
+        Description: "Database para armazenar tabelas da camada Raw do TLC Trip"
+        Tags:
+          - Key: Projeto
+            Value: Projeto Integrador
+
+  GlueTable:
+    Type: AWS::Glue::Table
+    Properties:
+      CatalogId: !Ref AWS::AccountId
+      DatabaseName: tlc_trip
+      TableInput:
+        Name: yellow_tripdata
+        Description: "Tabela de viagens do Yellow Taxi armazenada no S3"
+        TableType: EXTERNAL_TABLE
+        Parameters:
+          classification: "parquet"
+          parquet.compression: "SNAPPY"
+        StorageDescriptor:
+          Columns:
+            - Name: VendorID
+              Type: int
+            - Name: tpep_pickup_datetime
+              Type: timestamp
+            - Name: tpep_dropoff_datetime
+              Type: timestamp
+            - Name: passenger_count
+              Type: double
+            - Name: trip_distance
+              Type: double
+            - Name: rate_code_id
+              Type: int
+            - Name: store_and_fwd_flag
+              Type: string
+            - Name: pu_location_id
+              Type: int
+            - Name: do_location_id
+              Type: int
+            - Name: payment_type
+              Type: int
+            - Name: fare_amount
+              Type: double
+            - Name: extra
+              Type: double
+            - Name: mta_tax
+              Type: double
+            - Name: tip_amount
+              Type: double
+            - Name: tolls_amount
+              Type: double
+            - Name: improvement_surcharge
+              Type: double
+            - Name: total_amount
+              Type: double
+            - Name: congestion_surcharge
+              Type: double
+          Location: !Sub s3://${AWS::StackName}-raw/tlc_trip/yellow_tripdata/
+          InputFormat: org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat
+          OutputFormat: org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat
+          SerdeInfo:
+            SerializationLibrary: org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe
+        Tags:
+          - Key: Projeto
+            Value: Projeto Integrador
