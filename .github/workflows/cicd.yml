@@ -21,7 +21,7 @@ jobs:
         TEMP_DIR=`mktemp -d`
         mkdir $TEMP_DIR/python 
         pip install -r requirements.txt -t $TEMP_DIR/python
-        zip web-scrapping-layer.zip $TEMP_DIR/python
+        zip -r web-scrapping-layer.zip $TEMP_DIR/python
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
