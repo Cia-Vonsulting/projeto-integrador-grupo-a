@@ -1,31 +1,20 @@
-# This is a basic workflow to help you get started with Actions
-
 name: CICD
 
-# Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the "main" branch
+
   push:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
 
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  build:
-    # The type of runner that the job will run on
+
+  pre-build:
     runs-on: ubuntu-latest
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
-
-      # Runs a set of commands using the runners shell
       - name: Create layer zips
         run: |
           cd ./layers/web-scrapping-layer
@@ -34,22 +23,37 @@ jobs:
           pip install -r requirements.txt -t $TEMP_DIR/python
           zip web-scrapping-layer.zip $TEMP_DIR/python
 
-  deploy:
-    needs: build
+  build:
+    needs: pre-build
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ vars.AWS_REGION }}
-        
+    - name: Build package of the project
+      run: |
+        aws cloudformation package --template-file cloudformation.yml --s3-bucket ${{ AWS_BUCKET_ARTIFACT }} --s3-prefix builds --output-template-file cfstack_package.yml
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+      REPO_NAME: ${GITHUB_REPOSITORY#$GITHUB_REPOSITORY_OWNER/}
+    steps:
+    - uses: actions/checkout@v4
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ vars.AWS_REGION }}
     - name: Deploy to AWS CloudFormation
       uses: aws-actions/aws-cloudformation-github-deploy@v1
       with:
-        name: cfstack-eEDB-015-2025-1-grupo-a
-        template: cloudformation.yml
+        name: cfstack-$REPO_NAME
+        template: cfstack_package.yml
         capabilities: CAPABILITY_IAM,CAPABILITY_AUTO_EXPAND
