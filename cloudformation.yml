@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: 2010-09-09
 Transform: AWS::Serverless-2016-10-31
-Description: 'Stack eedb015-2024-g2 com os recursos do grupo 2 da Especializacao Engenharia de Dados e Big Data turma de 2024 para a aula de Projeto Integrador'
+Description: 'Stack cfstack-eedb015-2025-grupo-a com os recursos do grupo A da Especializacao Engenharia de Dados e Big Data turma de 2024 para a aula de Projeto Integrador'
 
 Parameters:
 
@@ -35,7 +35,7 @@ Resources:
 ########################################       ROLES       #################################################
 ############################################################################################################
 
-  IAMRole:
+  IAMRoleFunctionIngestion:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
@@ -44,20 +44,18 @@ Resources:
           - Effect: Allow
             Principal:
               Service:
-                - glue.amazonaws.com
-                - states.amazonaws.com
-                - events.amazonaws.com
                 - lambda.amazonaws.com
             Action:
               - sts:AssumeRole
       Policies:
-        - PolicyName: !Sub "${AWS::StackName}-Role"
+        - PolicyName: !Sub "${AWS::StackName}-function-ingestion-role"
           PolicyDocument:
             Version: 2012-10-17
             Statement:
               - Effect: Allow
-                Action: "*"
-                Resource: "*"
+                Action:
+                  - s3:PutObject
+                Resource: !GetAtt BucketRaw.Arn
       Tags:
         - Key: Projeto
           Value: Projeto Integrador
@@ -78,7 +76,7 @@ Resources:
       Runtime: 'python3.12'
       Layers:
         - !Ref WebScrappingLayer
-      Role: !GetAtt IAMRole.Arn
+      Role: !GetAtt IAMRoleFunctionIngestion.Arn
       CodeUri: './lambdas'
       Environment:
         Variables:
