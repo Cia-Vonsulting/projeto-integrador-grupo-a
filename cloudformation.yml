@@ -55,7 +55,7 @@ Resources:
               - Effect: Allow
                 Action:
                   - s3:PutObject
-                Resource: !GetAtt BucketRaw.Arn
+                Resource: !Sub "${BucketRaw.Arn}*"
       Tags:
         - Key: Projeto
           Value: Projeto Integrador
