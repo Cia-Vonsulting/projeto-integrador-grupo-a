@@ -1,0 +1,5 @@
+# All files in the repository are owned by your username
+* @your-username
+
+# Explicitly lock down the CODEOWNERS file to your username
+/.github/CODEOWNERS @your-username
