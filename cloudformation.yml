@@ -7,6 +7,12 @@ Parameters:
   DataUrl:
     Type: String
 
+  TaxiZoneLookUpUrl:
+    Type: String
+
+  TaxiZoneShapeFileUrl:
+    Type: String
+
 Resources:
 
 ############################################################################################################
@@ -64,11 +70,11 @@ Resources:
 ########################################      LAMBDAS      #################################################
 ############################################################################################################
 
-  FunctionIngestion:
+  FunctionTripDataIngestion:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub '${AWS::StackName}-ingestion-function'
-      Handler: 'lambda-ingestion.handler'
+      FunctionName: !Sub '${AWS::StackName}-ingestion-trip-data-function'
+      Handler: 'lambda-trip-data-ingestion.handler'
       Architectures:
         - 'arm64'
       MemorySize: 2048
@@ -83,6 +89,30 @@ Resources:
           NYC_TLC_URL: !Ref DataUrl
           BUCKET_NAME: !Ref BucketRaw
           BUCKET_PREFIX: 'tlc_trip'
+      Tags:
+        "Projeto": 'Projeto Integrador'
+
+  FunctionGeoDataIngestion:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub '${AWS::StackName}-ingestion-geo-data-function'
+      Handler: 'lambda-geo-data-ingestion.handler'
+      Architectures:
+        - 'arm64'
+      MemorySize: 2048
+      Timeout: 900
+      Runtime: 'python3.12'
+      Layers:
+        - !Ref WebScrappingLayer
+      Role: !GetAtt IAMRoleFunctionIngestion.Arn
+      CodeUri: './lambdas'
+      Environment:
+        Variables:
+          TAXI_ZONE_LOOKUP_URL: !Ref TaxiZoneLookUpUrl
+          TAXI_ZONE_SHAPEFILE_URL: !Ref TaxiZoneShapeFileUrl
+          BUCKET_NAME: !Ref BucketRaw
+          BUCKET_PREFIX: 'tlc_trip'
+          SHAPEFILE_PREFIX: 'shapefiles'
       Tags:
         "Projeto": 'Projeto Integrador'
 
