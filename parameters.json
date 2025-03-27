@@ -2,5 +2,13 @@
     {
       "ParameterKey": "DataUrl",
       "ParameterValue": "https://www.nyc.gov/site/tlc/about/tlc-trip-record-data.page"
+    },
+    {
+      "ParameterKey": "TaxiZoneLookUpUrl",
+      "ParameterValue": "https://d37ci6vzurychx.cloudfront.net/misc/taxi_zone_lookup.csv"
+    },
+    {
+      "ParameterKey": "TaxiZoneShapeFileUrl",
+      "ParameterValue": "https://d37ci6vzurychx.cloudfront.net/misc/taxi_zones.zip"
     }
 ]
