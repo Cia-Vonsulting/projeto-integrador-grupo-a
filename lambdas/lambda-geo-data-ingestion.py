@@ -21,10 +21,13 @@ def save_taxi_zone_lookup() -> NoReturn:
     url_response = requests.get(url, headers=HEADERS, stream=True)
     url_response.raise_for_status()
 
-    csv_name = url.split('/')[-1]
-    s3_key = f'{prefix}/{csv_name}'
+    # object must have a .read() method
+    csv_bytes = io.BytesIO(url_response.content)
 
-    s3_client.upload_fileobj(url_response.content, bucket, s3_key)
+    csv_name = url.split('/')[-1]
+    s3_key = f'{prefix}/taxi_zone_lookup/{csv_name}'
+
+    s3_client.upload_fileobj(csv_bytes, bucket, s3_key)
 
 def save_taxi_zone_shapefile() -> NoReturn:
 
