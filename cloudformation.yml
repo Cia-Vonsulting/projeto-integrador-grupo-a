@@ -13,6 +13,9 @@ Parameters:
   TaxiZoneShapeFileUrl:
     Type: String
 
+  BucketArtifacts:
+    Type: String
+
 Resources:
 
 ############################################################################################################
@@ -132,7 +135,6 @@ Resources:
         - Key: Projeto
           Value: Projeto Integrador
 
-
 ############################################################################################################
 ########################################      LAMBDAS      #################################################
 ############################################################################################################
@@ -209,7 +211,7 @@ Resources:
       Role: !GetAtt IAMRoleGlueJobTrusted.Arn
       Command:
         Name: 'glueetl'
-        ScriptLocation: !Sub './glues/glue_job_trusted.py'
+        ScriptLocation: !Sub 's3://${BucketArtifacts}/glue_scripts/glue_job_trusted.py'
         PythonVersion: '3'
       DefaultArguments:
         "--enable-glue-datacatalog": ""
