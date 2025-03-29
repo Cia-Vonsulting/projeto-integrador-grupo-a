@@ -351,10 +351,10 @@ Resources:
 ########################################   Glue Catalog    #################################################
 ############################################################################################################
 
-  DataQualityRulesetDataCompleteness:
+  DataQualityRulesetCompleteness:
     Type: AWS::Glue::DataQualityRuleset
     Properties:
-      Name: !Sub '${AWS::StackName}-trusted-ruleset'
+      Name: !Sub '${AWS::StackName}-trusted-completeness-ruleset'
       Description: 'Data Quality Ruleset for trusted_tlc_trip.yellow_tripdata table'
       Ruleset: |
         Rules = [
@@ -384,10 +384,10 @@ Resources:
         DatabaseName: !Ref GlueDatabaseTrusted
         TableName: 'yellow_tripdata'
 
-  DataQualityRulesetDataAnomalies:
+  DataQualityRulesetAnomalies:
     Type: AWS::Glue::DataQualityRuleset
     Properties:
-      Name: !Sub '${AWS::StackName}-trusted-ruleset'
+      Name: !Sub '${AWS::StackName}-trusted-anomalies-ruleset'
       Description: 'Data Quality Ruleset for trusted_tlc_trip.yellow_tripdata table'
       Ruleset: |
         Rules = [
