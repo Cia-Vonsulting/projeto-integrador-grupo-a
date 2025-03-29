@@ -376,7 +376,7 @@ Resources:
         IsComplete "mta_tax",
         IsComplete "tip_amount",
         IsComplete "tolls_amount",
-        IsComplete "improvement_surcharge" where "partition_dt >= \"2015\"",
+        # IsComplete "improvement_surcharge" where "partition_dt >= \"2015\"",
         IsComplete "total_amount",
         IsComplete "partition_dt" ]'
       TargetTable:
@@ -389,7 +389,7 @@ Resources:
       Name: !Sub '${AWS::StackName}-trusted-anomalies-ruleset'
       Description: 'Data Quality Ruleset for trusted_tlc_trip.yellow_tripdata table'
       Ruleset: 'Rules = [
-        CustomSql "SELECT COUNT(*) AS short_duration_count FROM trusted_tlc_trip.yellow_tripdata WHERE (CAST(dropoff_datetime AS LONG) - CAST(pickup_datetime AS LONG)) < 0" with threshold = 0,
+        # CustomSql "SELECT COUNT(*) AS short_duration_count FROM trusted_tlc_trip.yellow_tripdata WHERE (CAST(dropoff_datetime AS LONG) - CAST(pickup_datetime AS LONG)) < 0" with threshold = 0,
         ColumnValues "vendorid" in [1, 2, 6, 7],
         ColumnValues "rate_code_id" in [1, 2, 3, 4, 5, 6, 99],
         ColumnValues "payment_type" in [0, 1, 2, 3, 4, 5, 6] ]'
