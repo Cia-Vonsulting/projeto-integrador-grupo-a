@@ -126,7 +126,9 @@ Resources:
                 Action:
                   - s3:GetObject
                   - s3:ListBucket
-                Resource: !Sub "${BucketRaw.Arn}*"
+                Resource:
+                  - !Sub "${BucketRaw.Arn}*"
+                  - !Sub "arn:aws:s3:::${BucketArtifacts}*"
               - Effect: Allow
                 Action:
                   - s3:PutObject
@@ -211,7 +213,7 @@ Resources:
       Role: !GetAtt IAMRoleGlueJobTrusted.Arn
       Command:
         Name: 'glueetl'
-        ScriptLocation: !Sub 's3://${BucketArtifacts}/glue_scripts/glue_job_trusted.py'
+        ScriptLocation: !Sub 's3://${BucketArtifacts}/glues_scripts/glue_job_trusted.py'
         PythonVersion: '3'
       DefaultArguments:
         "--enable-glue-datacatalog": ""
