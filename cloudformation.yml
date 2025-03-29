@@ -317,3 +317,38 @@ Resources:
           OutputFormat: org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat
           SerdeInfo:
             SerializationLibrary: org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe
+
+############################################################################################################
+########################################   Glue Catalog    #################################################
+############################################################################################################
+
+  DataQualityRulesetBanks:
+    Type: AWS::Glue::DataQualityRuleset
+    Properties:
+      Name: !Sub '${AWS::StackName}-trusted-ruleset'
+      Description: 'Data Quality Ruleset for trusted_tlc_trip.yellow_tripdata table'
+      Ruleset: 'Rules = [
+        IsComplete "vendorid",
+        IsComplete "pickup_datetime",
+        IsComplete "dropoff_datetime",
+        IsComplete "passenger_count",
+        IsComplete "trip_distance",
+        IsComplete "rate_code_id",
+        IsComplete "pickup_neighborhood",
+        IsComplete "pickup_zone",
+        IsComplete "pickup_service_zone",
+        IsComplete "dropoff_neighborhood",
+        IsComplete "dropoff_zone",
+        IsComplete "dropoff_service_zone",
+        IsComplete "payment_type",
+        IsComplete "fare_amount",
+        IsComplete "extra",
+        IsComplete "mta_tax",
+        IsComplete "tip_amount",
+        IsComplete "tolls_amount",
+        IsComplete "improvement_surcharge",
+        IsComplete "total_amount",
+        IsComplete "partition_dt" ]'
+      TargetTable:
+        DatabaseName: !Ref GlueDatabaseTrusted
+        TableName: 'yellow_tripdata'
