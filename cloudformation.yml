@@ -37,6 +37,42 @@ Resources:
         - Key: Projeto
           Value: Projeto Integrador
 
+  BucketTrusted:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub "${AWS::StackName}-trusted"
+      AccessControl: Private
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      Tags:
+        - Key: Projeto
+          Value: Projeto Integrador
+
+  BucketAnalytics:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub "${AWS::StackName}-analytics"
+      AccessControl: Private
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      Tags:
+        - Key: Projeto
+          Value: Projeto Integrador
+
 ############################################################################################################
 ########################################       ROLES       #################################################
 ############################################################################################################
@@ -143,6 +179,22 @@ Resources:
       DatabaseInput:
         Name: tlc_trip
         Description: "Database para armazenar tabelas da camada Raw do TLC Trip"
+
+  GlueDatabaseTrusted:
+    Type: AWS::Glue::Database
+    Properties:
+      CatalogId: !Ref AWS::AccountId
+      DatabaseInput:
+        Name: trusted_tlc_trip
+        Description: "Database para armazenar tabelas da camada Trusted do TLC Trip"
+
+  GlueDatabaseAnalytics:
+    Type: AWS::Glue::Database
+    Properties:
+      CatalogId: !Ref AWS::AccountId
+      DatabaseInput:
+        Name: analytics_tlc_trip
+        Description: "Database para armazenar tabelas da camada Analytics do TLC Trip"
 
   GlueTable:
     Type: AWS::Glue::Table
