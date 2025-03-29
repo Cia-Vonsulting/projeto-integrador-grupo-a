@@ -136,28 +136,23 @@ Resources:
               - Effect: Allow
                 Action:
                   - glue:GetDatabase
-                  - glue:GetDatabases
-                Resource: !Sub "${BucketTrusted.Arn}*"
-              - Effect: Allow
-                Action:
-                  - glue:GetDatabase
                   - glue:GetTable
                   - glue:GetTables
                   - glue:GetPartition
                   - glue:GetPartitions
                   - glue:GetCatalogImportStatus
                 Resource:
-                  - arn:aws:glue:${AWS::Region}:${AWS::AccountId}:catalog
-                  - arn:aws:glue:${AWS::Region}:${AWS::AccountId}:database/tlc_trip
-                  - arn:aws:glue:${AWS::Region}:${AWS::AccountId}:table/tlc_trip/taxi_zone_lookup
+                  - !Sub arn:aws:glue:${AWS::Region}:${AWS::AccountId}:catalog
+                  - !Sub arn:aws:glue:${AWS::Region}:${AWS::AccountId}:database/tlc_trip
+                  - !Sub arn:aws:glue:${AWS::Region}:${AWS::AccountId}:table/tlc_trip/taxi_zone_lookup
               - Effect: Allow
                 Action:
                   - glue:CreateTable
                   - glue:UpdateTable
                   - glue:GetTable
                 Resource:
-                  - arn:aws:glue:${AWS::Region}:${AWS::AccountId}:database/trusted_tlc_trip
-                  - arn:aws:glue:${AWS::Region}:${AWS::AccountId}:table/trusted_tlc_trip/yellow_tripdata
+                  - !Sub arn:aws:glue:${AWS::Region}:${AWS::AccountId}:database/trusted_tlc_trip
+                  - !Sub arn:aws:glue:${AWS::Region}:${AWS::AccountId}:table/trusted_tlc_trip/yellow_tripdata
       Tags:
         - Key: Projeto
           Value: Projeto Integrador
@@ -347,7 +342,38 @@ Resources:
 ########################################   Glue Catalog    #################################################
 ############################################################################################################
 
-  DataQualityRulesetBanks:
+  DataQualityRulesetCompleteness:
+    Type: AWS::Glue::DataQualityRuleset
+    Properties:
+      Name: !Sub '${AWS::StackName}-trusted-ruleset'
+      Description: 'Data Quality Ruleset for trusted_tlc_trip.yellow_tripdata table'
+      Ruleset: 'Rules = [
+        IsComplete "vendorid",
+        IsComplete "pickup_datetime",
+        IsComplete "dropoff_datetime",
+        IsComplete "passenger_count",
+        IsComplete "trip_distance",
+        IsComplete "rate_code_id",
+        IsComplete "pickup_neighborhood",
+        IsComplete "pickup_zone",
+        IsComplete "pickup_service_zone",
+        IsComplete "dropoff_neighborhood",
+        IsComplete "dropoff_zone",
+        IsComplete "dropoff_service_zone",
+        IsComplete "payment_type",
+        IsComplete "fare_amount",
+        IsComplete "extra",
+        IsComplete "mta_tax",
+        IsComplete "tip_amount",
+        IsComplete "tolls_amount",
+        IsComplete "improvement_surcharge",
+        IsComplete "total_amount",
+        IsComplete "partition_dt" ]'
+      TargetTable:
+        DatabaseName: !Ref GlueDatabaseTrusted
+        TableName: 'yellow_tripdata'
+
+  DataQualityRulesetCompleteness:
     Type: AWS::Glue::DataQualityRuleset
     Properties:
       Name: !Sub '${AWS::StackName}-trusted-ruleset'
