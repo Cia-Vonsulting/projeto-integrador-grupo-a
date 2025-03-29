@@ -102,6 +102,37 @@ Resources:
         - Key: Projeto
           Value: Projeto Integrador
 
+  IAMRoleGlueJobTrusted:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - glue.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Policies:
+        - PolicyName: !Sub "${AWS::StackName}-read-raw"
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:ListBucket
+                Resource: !Sub "${BucketRaw.Arn}*"
+              - Effect: Allow
+                Action:
+                  - s3:PutObject
+                Resource: !Sub "${BucketTrusted.Arn}*"
+      Tags:
+        - Key: Projeto
+          Value: Projeto Integrador
+
+
 ############################################################################################################
 ########################################      LAMBDAS      #################################################
 ############################################################################################################
@@ -175,7 +206,7 @@ Resources:
     Type: AWS::Glue::Job
     Properties:
       Name: !Sub '${AWS::StackName}-trusted-glue-job'
-      Role: !GetAtt IAMRole.Arn
+      Role: !GetAtt IAMRoleGlueJobTrusted.Arn
       Command:
         Name: 'glueetl'
         ScriptLocation: !Sub './glues/glue_job_trusted.py'
