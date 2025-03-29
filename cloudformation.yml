@@ -167,6 +167,36 @@ Resources:
       CompatibleRuntimes:
         - 'python3.12'
 
+############################################################################################################
+########################################     Glue Jobs    ##################################################
+############################################################################################################
+
+  GlueJobTrustedLayer:
+    Type: AWS::Glue::Job
+    Properties:
+      Name: !Sub '${AWS::StackName}-trusted-glue-job'
+      Role: !GetAtt IAMRole.Arn
+      Command:
+        Name: 'glueetl'
+        ScriptLocation: !Sub './glues/glue_job_trusted.py'
+        PythonVersion: '3'
+      DefaultArguments:
+        "--enable-glue-datacatalog": ""
+        "--enable-metrics": ""
+        "--sourcebucket": !Ref BucketRaw
+        "--sourceprefix": 'tlc_trip/yellow_tripdata'
+        "--sourcedatabase": !Ref GlueDatabase
+        "--sourcezonetable": 'taxi_zone_lookup'
+        "--targetbucket": !Ref BucketTrusted
+        "--targetdatabase": !Ref GlueDatabaseTrusted
+        "--targettable": 'yellow_tripdata'
+        "--month": ""
+      MaxRetries: 0
+      GlueVersion: '5.0'
+      Timeout: 60
+      NumberOfWorkers: 2
+      WorkerType: 'G.1X'
+
 
 ############################################################################################################
 ########################################   Glue Catalog    #################################################
