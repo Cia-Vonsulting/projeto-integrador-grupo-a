@@ -376,7 +376,7 @@ Resources:
         IsComplete "mta_tax",
         IsComplete "tip_amount",
         IsComplete "tolls_amount",
-        IsComplete "improvement_surcharge" where "partition_dt >= "2015"",
+        IsComplete "improvement_surcharge" where "partition_dt >= \"2015\"",
         IsComplete "total_amount",
         IsComplete "partition_dt" ]'
       TargetTable:
