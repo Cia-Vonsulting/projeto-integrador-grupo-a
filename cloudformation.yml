@@ -126,9 +126,7 @@ Resources:
                 Action:
                   - s3:GetObject
                   - s3:ListBucket
-                Resource:
-                  - !Sub "${BucketRaw.Arn}*"
-                  - !Sub "arn:aws:s3:::${BucketArtifacts}*"
+                Resource: !Sub "${BucketRaw.Arn}*"
               - Effect: Allow
                 Action:
                   - s3:PutObject
