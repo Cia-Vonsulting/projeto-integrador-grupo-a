@@ -145,6 +145,7 @@ Resources:
                 Resource:
                   - !Sub arn:aws:glue:${AWS::Region}:${AWS::AccountId}:catalog
                   - !Sub arn:aws:glue:${AWS::Region}:${AWS::AccountId}:database/tlc_trip
+                  - !Sub arn:aws:glue:${AWS::Region}:${AWS::AccountId}:database/trusted_tlc_trip
                   - !Sub arn:aws:glue:${AWS::Region}:${AWS::AccountId}:database/default
                   - !Sub arn:aws:glue:${AWS::Region}:${AWS::AccountId}:table/tlc_trip/taxi_zone_lookup
               - Effect: Allow
@@ -154,6 +155,10 @@ Resources:
                   - glue:GetPartitions
                   - glue:CreateTable
                   - glue:UpdateTable
+                  - glue:CreatePartition
+                  - glue:BatchCreatePartition
+                  - glue:UpdatePartition
+                  - glue:BatchUpdatePartition
                 Resource:
                   - !Sub arn:aws:glue:${AWS::Region}:${AWS::AccountId}:database/trusted_tlc_trip
                   - !Sub arn:aws:glue:${AWS::Region}:${AWS::AccountId}:table/trusted_tlc_trip/yellow_tripdata
