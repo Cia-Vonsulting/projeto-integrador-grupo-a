@@ -10,5 +10,9 @@
     {
       "ParameterKey": "TaxiZoneShapeFileUrl",
       "ParameterValue": "https://d37ci6vzurychx.cloudfront.net/misc/taxi_zones.zip"
+    },
+    {
+      "ParameterKey": "BucketArtifacts",
+      "ParameterValue": "cloudformation-artifacts-eedb-015-2024-grupo-a"
     }
 ]

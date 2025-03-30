@@ -13,6 +13,9 @@ Parameters:
   TaxiZoneShapeFileUrl:
     Type: String
 
+  BucketArtifacts:
+    Type: String
+
 Resources:
 
 ############################################################################################################
@@ -102,6 +105,68 @@ Resources:
         - Key: Projeto
           Value: Projeto Integrador
 
+  IAMRoleGlueJobTrusted:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - glue.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Policies:
+        - PolicyName: !Sub "${AWS::StackName}-read-raw"
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:ListBucket
+                Resource:
+                  - !Sub "${BucketRaw.Arn}*"
+                  - !Sub "arn:aws:s3:::${BucketArtifacts}*"
+              - Effect: Allow
+                Action:
+                  - s3:ListBucket
+                  - s3:PutObject
+                Resource: !Sub "${BucketTrusted.Arn}*"
+              - Effect: Allow
+                Action:
+                  - glue:GetDatabase
+                  - glue:GetTable
+                  - glue:GetTables
+                  - glue:GetPartition
+                  - glue:GetPartitions
+                  - glue:GetCatalogImportStatus
+                Resource:
+                  - !Sub arn:aws:glue:${AWS::Region}:${AWS::AccountId}:catalog
+                  - !Sub arn:aws:glue:${AWS::Region}:${AWS::AccountId}:database/tlc_trip
+                  - !Sub arn:aws:glue:${AWS::Region}:${AWS::AccountId}:database/trusted_tlc_trip
+                  - !Sub arn:aws:glue:${AWS::Region}:${AWS::AccountId}:database/default
+                  - !Sub arn:aws:glue:${AWS::Region}:${AWS::AccountId}:table/tlc_trip/taxi_zone_lookup
+              - Effect: Allow
+                Action:
+                  - glue:GetDatabase
+                  - glue:GetTable
+                  - glue:GetPartitions
+                  - glue:CreateTable
+                  - glue:UpdateTable
+                  - glue:CreatePartition
+                  - glue:BatchCreatePartition
+                  - glue:UpdatePartition
+                  - glue:BatchUpdatePartition
+                Resource:
+                  - !Sub arn:aws:glue:${AWS::Region}:${AWS::AccountId}:catalog
+                  - !Sub arn:aws:glue:${AWS::Region}:${AWS::AccountId}:database/trusted_tlc_trip
+                  - !Sub arn:aws:glue:${AWS::Region}:${AWS::AccountId}:table/trusted_tlc_trip/yellow_tripdata
+      Tags:
+        - Key: Projeto
+          Value: Projeto Integrador
+
 ############################################################################################################
 ########################################      LAMBDAS      #################################################
 ############################################################################################################
@@ -166,6 +231,36 @@ Resources:
         - 'arm64'
       CompatibleRuntimes:
         - 'python3.12'
+
+############################################################################################################
+########################################     Glue Jobs    ##################################################
+############################################################################################################
+
+  GlueJobTrustedLayer:
+    Type: AWS::Glue::Job
+    Properties:
+      Name: !Sub '${AWS::StackName}-trusted-glue-job'
+      Role: !GetAtt IAMRoleGlueJobTrusted.Arn
+      Command:
+        Name: 'glueetl'
+        ScriptLocation: !Sub 's3://${BucketArtifacts}/glues_scripts/glue_job_trusted.py'
+        PythonVersion: '3'
+      DefaultArguments:
+        "--enable-glue-datacatalog": ""
+        "--enable-metrics": ""
+        "--sourcebucket": !Ref BucketRaw
+        "--sourceprefix": 'tlc_trip/yellow_tripdata'
+        "--sourcedatabase": !Ref GlueDatabase
+        "--sourcezonetable": 'taxi_zone_lookup'
+        "--targetbucket": !Ref BucketTrusted
+        "--targetdatabase": !Ref GlueDatabaseTrusted
+        "--targettable": 'yellow_tripdata'
+        "--month": ""
+      MaxRetries: 0
+      GlueVersion: '5.0'
+      Timeout: 60
+      NumberOfWorkers: 2
+      WorkerType: 'G.1X'
 
 
 ############################################################################################################
@@ -252,3 +347,56 @@ Resources:
           OutputFormat: org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat
           SerdeInfo:
             SerializationLibrary: org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe
+
+############################################################################################################
+########################################   Glue Catalog    #################################################
+############################################################################################################
+
+  DataQualityCompletenessRuleset:
+    Type: AWS::Glue::DataQualityRuleset
+    Properties:
+      Name: !Sub '${AWS::StackName}-trusted-completeness-ruleset'
+      Description: 'Data Quality Ruleset for trusted_tlc_trip.yellow_tripdata table'
+      Ruleset: 'Rules = [
+        IsComplete "vendorid",
+        IsComplete "pickup_datetime",
+        IsComplete "dropoff_datetime",
+        IsComplete "passenger_count",
+        IsComplete "trip_distance",
+        IsComplete "rate_code_id",
+        IsComplete "pickup_neighborhood",
+        IsComplete "pickup_zone",
+        IsComplete "pickup_service_zone",
+        IsComplete "dropoff_neighborhood",
+        IsComplete "dropoff_zone",
+        IsComplete "dropoff_service_zone",
+        IsComplete "payment_type",
+        IsComplete "fare_amount",
+        IsComplete "extra",
+        IsComplete "mta_tax",
+        IsComplete "tip_amount",
+        IsComplete "tolls_amount",
+        IsComplete "total_amount",
+        IsComplete "partition_dt" ]'
+      TargetTable:
+        DatabaseName: !Ref GlueDatabaseTrusted
+        TableName: 'yellow_tripdata'
+
+
+# TODO: FIX THIS:
+        # IsComplete "improvement_surcharge" where "partition_dt >= \"2015\"",
+        # CustomSql "SELECT COUNT(*) AS short_duration_count FROM trusted_tlc_trip.yellow_tripdata WHERE (CAST(dropoff_datetime AS LONG) - CAST(pickup_datetime AS LONG)) < 0" with threshold = 0,
+
+
+  DataQualityAnomaliesRuleset:
+    Type: AWS::Glue::DataQualityRuleset
+    Properties:
+      Name: !Sub '${AWS::StackName}-trusted-anomalies-ruleset'
+      Description: 'Data Quality Ruleset for trusted_tlc_trip.yellow_tripdata table'
+      Ruleset: 'Rules = [
+        ColumnValues "vendorid" in [1, 2, 6, 7],
+        ColumnValues "rate_code_id" in [1, 2, 3, 4, 5, 6, 99],
+        ColumnValues "payment_type" in [0, 1, 2, 3, 4, 5, 6] ]'
+      TargetTable:
+        DatabaseName: !Ref GlueDatabaseTrusted
+        TableName: 'yellow_tripdata'
