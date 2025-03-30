@@ -388,7 +388,7 @@ Resources:
       Name: !Sub '${AWS::StackName}-trusted-anomalies-ruleset'
       Description: 'Data Quality Ruleset for trusted_tlc_trip.yellow_tripdata table'
       Ruleset: 'Rules = [
-        ColumnValues "passenger_count" > 0.0 where "passenger_count IS NOT NULL",
+        ColumnValues "passenger_count" > 0 where "passenger_count IS NOT NULL",
         ColumnValues "total_amount" > 0 where "total_amount IS NOT NULL",
         ColumnValues "vendorid" in [1, 2, 6, 7],
         ColumnValues "rate_code_id" in [1, 2, 3, 4, 5, 6, 99],
