@@ -195,7 +195,7 @@ Resources:
                 Action:
                   - s3:ListBucket
                   - s3:PutObject
-                Resource: !Sub "${BucketDelivery.Arn}*"
+                Resource: !Sub "${BucketAnalytics.Arn}*"
               - Effect: Allow
                 Action:
                   - glue:GetDatabase
