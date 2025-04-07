@@ -71,12 +71,15 @@ def main():
                 round(sum(improvement_surcharge),2) sum_improvement_surcharge,
                 round(sum(congestion_surcharge),2) sum_congestion_surcharge,
                 round(sum(total_amount),2) sum_total_amount,
-                round(avg(total_amount),2) avg_total_amount
+                round(avg(total_amount),2) avg_total_amount,
+                partition_dt
             FROM 
                 {source_database}.yellow_tripdata
             WHERE 
                 total_amount > 0
                 {month_where}
+            GROUP BY
+                partition_dt
         '''    
         ).cache()
 
