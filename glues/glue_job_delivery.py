@@ -123,7 +123,7 @@ def main():
                 pickup_neighborhood,
                 pickup_zone,
                 pickup_service_zone,
-                count(*) trips_per_hour,
+                count(*) trips_per_zone,
                 partition_dt
             FROM 
                 {source_database}.yellow_tripdata
