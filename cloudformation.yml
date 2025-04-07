@@ -208,8 +208,8 @@ Resources:
                   - !Sub arn:aws:glue:${AWS::Region}:${AWS::AccountId}:catalog
                   - !Sub arn:aws:glue:${AWS::Region}:${AWS::AccountId}:database/delivery_tlc_trip
                   - !Sub arn:aws:glue:${AWS::Region}:${AWS::AccountId}:database/trusted_tlc_trip
-                  - !Sub arn:aws:glue:${AWS::Region}:${AWS::AccountId}:database/default            
-                  - !Sub arn:aws:glue:${AWS::Region}:${AWS::AccountId}:table/delivery_tlc_trip/yellow_tripdata
+                  - !Sub arn:aws:glue:${AWS::Region}:${AWS::AccountId}:database/default      
+                  - !Sub arn:aws:glue:${AWS::Region}:${AWS::AccountId}:table/trusted_tlc_trip/yellow_tripdata
               - Effect: Allow
                 Action:
                   - glue:GetDatabase
