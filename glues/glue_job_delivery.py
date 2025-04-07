@@ -94,7 +94,7 @@ def main():
 
         query = f'''
             SELECT 
-                date_format(pickup_datetime, '%H:00:00') AS trip_hour,
+                date_format(pickup_datetime, 'HH:00:00') AS trip_hour,
                 count(*) trips_per_hour,
                 partition_dt
             FROM 
@@ -102,8 +102,8 @@ def main():
             WHERE
                 dropoff_datetime > pickup_datetime
                 {month_where}
-            GROUPBY
-                date_format(pickup_datetime, '%H:00:00'), 
+            GROUP BY
+                date_format(pickup_datetime, 'HH:00:00'),
                 partition_dt
         '''
 
