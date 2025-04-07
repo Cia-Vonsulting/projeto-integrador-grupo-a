@@ -223,8 +223,8 @@ Resources:
                   - glue:BatchUpdatePartition
                 Resource:
                   - !Sub arn:aws:glue:${AWS::Region}:${AWS::AccountId}:catalog
-                  - !Sub arn:aws:glue:${AWS::Region}:${AWS::AccountId}:database/delivery_tlc_trip
-                  - !Sub arn:aws:glue:${AWS::Region}:${AWS::AccountId}:table/delivery_tlc_trip/*
+                  - !Sub arn:aws:glue:${AWS::Region}:${AWS::AccountId}:database/analytics_tlc_trip
+                  - !Sub arn:aws:glue:${AWS::Region}:${AWS::AccountId}:table/analytics_tlc_trip/*
       Tags:
         - Key: Projeto
           Value: Projeto Integrador
