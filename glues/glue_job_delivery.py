@@ -60,8 +60,7 @@ def main():
 
         print('Reading data from table yellow_tripdata on trusted layer')
 
-        df = spark.sql(
-        f'''
+        query = f'''
             SELECT
                 round(sum(fare_amount),2) sum_fare_amount,
                 round(sum(extra),2) sum_extra,
@@ -80,8 +79,10 @@ def main():
                 {month_where}
             GROUP BY
                 partition_dt
-        '''    
-        ).cache()
+        ''' 
+
+        print(f"Query summarized_trip_cost: {query}")
+        df = spark.sql(query).cache()
 
         print('Loading table summarized_trip_cost')
 
@@ -91,8 +92,7 @@ def main():
 
         print('Reading data from table yellow_tripdata on trusted layer')
 
-        df = spark.sql(
-        f'''
+        query = f'''
             SELECT 
                 date_format(pickup_datetime, '%H:00:00') AS trip_hour,
                 count(*) trips_per_hour,
@@ -106,7 +106,9 @@ def main():
                 date_format(pickup_datetime, '%H:00:00'), 
                 partition_dt
         '''
-        ).cache()
+
+        print(f"Query trip_peak_time: {query}")
+        df = spark.sql(query).cache()
 
         print('Loading table trip_peak_time')
 
@@ -116,8 +118,7 @@ def main():
 
         print('Reading data from table yellow_tripdata on trusted layer')
 
-        df = spark.sql(
-        f'''
+        query = f'''
             SELECT 
                 pickup_neighborhood,
                 pickup_zone,
@@ -135,7 +136,9 @@ def main():
                 pickup_zone,
                 pickup_service_zone
         '''
-        ).cache()
+
+        print(f"Query trip_peak_zones: {query}")
+        df = spark.sql(query).cache()
 
         print('Loading table trip_peak_zones')
 
