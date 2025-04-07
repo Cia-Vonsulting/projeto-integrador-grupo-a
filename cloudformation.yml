@@ -355,7 +355,7 @@ Resources:
         "--targetbucket": !Ref BucketAnalytics
         "--targetdatabase": !Ref GlueDatabaseAnalytics
         "--targettable": 'yellow_tripdata'
-        "--month": ""
+        "--month": "full"
         "--tables": "summarized_trip_cost,trip_peak_time,trip_peak_zones"
       MaxRetries: 0
       GlueVersion: '5.0'

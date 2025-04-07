@@ -54,7 +54,7 @@ def main():
     month            = args['month']
 
     tables_list = tables.split(",")
-    month_where = f"AND partition_dt = '{month}'" if month is not None else ""
+    month_where = f"AND partition_dt = '{month}'" if month != "full" else ""
 
     if 'summarized_trip_cost' in tables_list:
 
