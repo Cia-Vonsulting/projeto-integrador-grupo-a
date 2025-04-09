@@ -163,6 +163,82 @@ Resources:
                   - !Sub arn:aws:glue:${AWS::Region}:${AWS::AccountId}:catalog
                   - !Sub arn:aws:glue:${AWS::Region}:${AWS::AccountId}:database/trusted_tlc_trip
                   - !Sub arn:aws:glue:${AWS::Region}:${AWS::AccountId}:table/trusted_tlc_trip/yellow_tripdata
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource:
+                  - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:*
+      Tags:
+        - Key: Projeto
+          Value: Projeto Integrador
+
+  IAMRoleGlueJobDelivery:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - glue.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Policies:
+        - PolicyName: !Sub "${AWS::StackName}-read-trusted"
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:ListBucket
+                Resource:
+                  - !Sub "${BucketTrusted.Arn}*"
+                  - !Sub "arn:aws:s3:::${BucketArtifacts}*"
+              - Effect: Allow
+                Action:
+                  - s3:ListBucket
+                  - s3:PutObject
+                Resource: !Sub "${BucketAnalytics.Arn}*"
+              - Effect: Allow
+                Action:
+                  - glue:GetDatabase
+                  - glue:GetTable
+                  - glue:GetTables
+                  - glue:GetPartition
+                  - glue:GetPartitions
+                  - glue:GetCatalogImportStatus
+                Resource:
+                  - !Sub arn:aws:glue:${AWS::Region}:${AWS::AccountId}:catalog
+                  - !Sub arn:aws:glue:${AWS::Region}:${AWS::AccountId}:database/delivery_tlc_trip
+                  - !Sub arn:aws:glue:${AWS::Region}:${AWS::AccountId}:database/trusted_tlc_trip
+                  - !Sub arn:aws:glue:${AWS::Region}:${AWS::AccountId}:database/default      
+                  - !Sub arn:aws:glue:${AWS::Region}:${AWS::AccountId}:table/trusted_tlc_trip/yellow_tripdata
+              - Effect: Allow
+                Action:
+                  - glue:GetDatabase
+                  - glue:GetTable
+                  - glue:GetPartitions
+                  - glue:CreateTable
+                  - glue:UpdateTable
+                  - glue:CreatePartition
+                  - glue:BatchCreatePartition
+                  - glue:UpdatePartition
+                  - glue:BatchUpdatePartition
+                Resource:
+                  - !Sub arn:aws:glue:${AWS::Region}:${AWS::AccountId}:catalog
+                  - !Sub arn:aws:glue:${AWS::Region}:${AWS::AccountId}:database/analytics_tlc_trip
+                  - !Sub arn:aws:glue:${AWS::Region}:${AWS::AccountId}:table/analytics_tlc_trip/*
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource:
+                  - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:*
       Tags:
         - Key: Projeto
           Value: Projeto Integrador
@@ -260,6 +336,31 @@ Resources:
       GlueVersion: '5.0'
       Timeout: 60
       NumberOfWorkers: 2
+      WorkerType: 'G.1X'
+
+  GlueJobDeliveryLayer:
+    Type: AWS::Glue::Job
+    Properties:
+      Name: !Sub '${AWS::StackName}-delivery-glue-job'
+      Role: !GetAtt IAMRoleGlueJobDelivery.Arn
+      Command:
+        Name: 'glueetl'
+        ScriptLocation: !Sub 's3://${BucketArtifacts}/glues_scripts/glue_job_delivery.py'
+        PythonVersion: '3'
+      DefaultArguments:
+        "--enable-glue-datacatalog": ""
+        "--enable-metrics": ""
+        "--enable-auto-scaling": "true"       
+        "--sourcedatabase": !Ref GlueDatabaseTrusted
+        "--targetbucket": !Ref BucketAnalytics
+        "--targetdatabase": !Ref GlueDatabaseAnalytics
+        "--targettable": 'yellow_tripdata'
+        "--month": "full"
+        "--tables": "summarized_trip_cost,trip_peak_time,trip_peak_zones"
+      MaxRetries: 0
+      GlueVersion: '5.0'
+      Timeout: 600
+      NumberOfWorkers: 6
       WorkerType: 'G.1X'
 
 
